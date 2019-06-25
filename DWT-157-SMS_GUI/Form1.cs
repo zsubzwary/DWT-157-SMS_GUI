@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO.Ports;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -19,7 +21,8 @@ namespace DWT_157_SMS_GUI
 
         private void btnSend_Click(object sender, EventArgs e)
         {
-
+            String res = SMS.sendSMS(txtPhoneNo.Text, txtMessage.Text, txtCOMPort.Text);
+            MessageBox.Show(res);
         }
     }
 }
