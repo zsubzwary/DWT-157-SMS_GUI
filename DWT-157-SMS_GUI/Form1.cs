@@ -25,5 +25,10 @@ namespace DWT_157_SMS_GUI
             String res = SMS.sendSMS(txtPhoneNo.Text, msg, txtCOMPort.Text);
             MessageBox.Show(res);
         }
+
+        private void btnBroadcast_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

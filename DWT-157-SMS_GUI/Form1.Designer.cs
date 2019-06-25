@@ -35,6 +35,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
+            this.btnBroadcast = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // txtPhoneNo
@@ -97,11 +98,22 @@
             this.label3.TabIndex = 6;
             this.label3.Text = "Message";
             // 
+            // btnBroadcast
+            // 
+            this.btnBroadcast.Location = new System.Drawing.Point(26, 386);
+            this.btnBroadcast.Name = "btnBroadcast";
+            this.btnBroadcast.Size = new System.Drawing.Size(157, 34);
+            this.btnBroadcast.TabIndex = 7;
+            this.btnBroadcast.Text = "Open Broadcaster";
+            this.btnBroadcast.UseVisualStyleBackColor = true;
+            this.btnBroadcast.Click += new System.EventHandler(this.btnBroadcast_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(813, 432);
+            this.Controls.Add(this.btnBroadcast);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
@@ -129,6 +141,7 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Button btnBroadcast;
     }
 }
 
