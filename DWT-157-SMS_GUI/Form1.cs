@@ -21,7 +21,8 @@ namespace DWT_157_SMS_GUI
 
         private void btnSend_Click(object sender, EventArgs e)
         {
-            String res = SMS.sendSMS(txtPhoneNo.Text, txtMessage.Text, txtCOMPort.Text);
+            String msg = txtMessage.Text.Replace("\r\n", "\n");
+            String res = SMS.sendSMS(txtPhoneNo.Text, msg, txtCOMPort.Text);
             MessageBox.Show(res);
         }
     }
