@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
@@ -15,22 +16,16 @@ namespace DWT_157_SMS_GUI
             String responseOfAction = "";
             try
             {
+                // for more info visit https://stackoverflow.com/a/15450868/8140312
                 SerialPort sp = new SerialPort();
                 sp.PortName = portno;
                 sp.Open();
-                sp.WriteLine("AT" + Environment.NewLine);
-                Thread.Sleep(44);
-                sp.WriteLine("AT+CMGF=1" + Environment.NewLine);
-                Thread.Sleep(44);
-                sp.WriteLine("AT+CSCS=\"GSM\"" + Environment.NewLine);
-                Thread.Sleep(44);
-                sp.WriteLine("AT+CMGS=\"" + phoneno + "\"" + Environment.NewLine);
-                Thread.Sleep(44);
-                sp.WriteLine(message + Environment.NewLine);
-                Thread.Sleep(44);
-                sp.Write(new Byte[] { 26 }, 0, 1);
-                Thread.Sleep(44);
-                var response = sp.ReadExisting();
+                SendCommand("AT", sp);
+                SendCommand("AT+CMGF=1", sp);
+                SendCommand("AT+CSCS=\"GSM\"", sp);
+                SendCommand("AT+CMGS=\"" + phoneno + "\"", sp);
+
+                var response = SendCommand(message + "\x1A", sp);
 
                 if (response.Contains("ERROR"))
                 {
@@ -49,6 +44,17 @@ namespace DWT_157_SMS_GUI
                 return e.Message;
             }
 
+        }
+
+        public static String SendCommand(string command, SerialPort sp)
+        {
+            sp.Write(command + "\r");
+            Thread.Sleep(45);
+            String res = sp.ReadExisting();
+            Debug.WriteLine("COMMAND: " + res);
+            // Do not put here an arbitrary wait, check modem's response
+            // Reading from serial port (use timeout).
+            return res;
         }
 
     }

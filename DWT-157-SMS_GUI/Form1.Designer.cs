@@ -50,6 +50,7 @@
             this.txtCOMPort.Name = "txtCOMPort";
             this.txtCOMPort.Size = new System.Drawing.Size(100, 26);
             this.txtCOMPort.TabIndex = 1;
+            this.txtCOMPort.Text = "COM9";
             // 
             // txtMessage
             // 
