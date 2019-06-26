@@ -1,4 +1,7 @@
-﻿using System;
+﻿using GsmComm.GsmCommunication;
+using GsmComm.PduConverter;
+using GsmComm.PduConverter.SmartMessaging;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Ports;
@@ -11,37 +14,82 @@ namespace DWT_157_SMS_GUI
 {
     public class SMS
     {
-        public static String sendSMS(String phoneno, String message, String portno)
+        public static String sendSMS(String phoneno, String message, String portno, bool usePDU = true)
         {
             String responseOfAction = "";
-            try
+            if (usePDU == false)
             {
-                // for more info visit https://stackoverflow.com/a/15450868/8140312
-                SerialPort sp = new SerialPort();
-                sp.PortName = portno;
-                sp.Open();
-                SendCommand("AT", sp);
-                SendCommand("AT+CMGF=1", sp);
-                SendCommand("AT+CSCS=\"GSM\"", sp);
-                SendCommand("AT+CMGS=\"" + phoneno + "\"", sp);
-
-                var response = SendCommand(message + "\x1A", sp);
-
-                if (response.Contains("ERROR"))
+                try
                 {
-                    responseOfAction = $"Unable to send SMS{Environment.NewLine}RESPONSE: “{response}”";
-                }
-                else
-                {
-                    responseOfAction = $"SMS sent successfully.{Environment.NewLine}RESPONSE: “{response}”";
-                }
-                sp.Close();
+                    // for more info visit https://stackoverflow.com/a/15450868/8140312
+                    SerialPort sp = new SerialPort();
+                    sp.PortName = portno;
+                    sp.Open();
+                    SendCommand("AT", sp);
+                    SendCommand("AT+CMGF=1", sp);
+                    SendCommand("AT+CSCS=\"GSM\"", sp);
+                    SendCommand("AT+CMGS=\"" + phoneno + "\"", sp);
 
-                return responseOfAction;
+                    var response = SendCommand(message + "\x1A", sp);
+
+                    if (response.Contains("ERROR"))
+                    {
+                        responseOfAction = $"Unable to send SMS{Environment.NewLine}RESPONSE: “{response}”";
+                    }
+                    else
+                    {
+                        responseOfAction = $"SMS sent successfully.{Environment.NewLine}RESPONSE: “{response}”";
+                    }
+                    sp.Close();
+
+                    return responseOfAction;
+                }
+                catch (Exception e)
+                {
+                    return e.Message;
+                }
             }
-            catch (Exception e)
+            else
             {
-                return e.Message;
+                // GsmComm is installed from nuget Package Manager
+                GsmCommMain GsmCom = null;
+                try
+                {
+                    GsmCom = new GsmCommMain(portno, 9600, 5000);
+                    GsmCom.Open();
+                    GsmCom.PortName.ToString();
+                    Random random = new Random();
+                    int PIN = random.Next(100990, 999999);
+
+
+                    OutgoingSmsPdu[] pdus = SmartMessageFactory.CreateConcatTextMessage(message + " ==> " + PIN.ToString(), true, phoneno);
+                    //var st = new Stopwatch();
+                    //st.Start();
+                    long smsSent = 0;
+                    if (pdus != null)
+                    {
+                        foreach (OutgoingSmsPdu pdu in pdus)
+                        {
+                            GsmCom.SendMessage(pdu);
+                        }
+                        //smsSent = st.ElapsedMilliseconds;
+                    }
+                    GsmCom.Close();
+                    //var gsmClsed = st.ElapsedMilliseconds;
+                    //st.Stop();
+                    //Debug.WriteLine($"smsSentIN: {smsSent} == gsmClosed in {gsmClsed - smsSent }");
+                    return "Message Sent with " + portno.ToString();
+
+                }
+                catch (Exception exp)
+                {
+                    if (GsmCom.IsOpen())
+                    {
+                        GsmCom.Close();
+                    }
+                    return "Not send: " + exp.Message;
+                    // goto lebe;
+                }
             }
 
         }
