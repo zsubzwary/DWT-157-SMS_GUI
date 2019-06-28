@@ -58,11 +58,17 @@ namespace DWT_157_SMS_GUI
                     GsmCom = new GsmCommMain(portno, 9600, 5000);
                     GsmCom.Open();
                     GsmCom.PortName.ToString();
-                    Random random = new Random();
-                    int PIN = random.Next(100990, 999999);
-
-
-                    OutgoingSmsPdu[] pdus = SmartMessageFactory.CreateConcatTextMessage(message + " ==> " + PIN.ToString(), true, phoneno);
+                    OutgoingSmsPdu[] pdus = null;
+                    bool isValidGSMCharaters = isValidGSMCharateres(message);
+                    if (isValidGSMCharaters)
+                    {
+                        pdus = SmartMessageFactory.CreateConcatTextMessage(message, false, phoneno);
+                    }
+                    else
+                    {
+                        pdus = SmartMessageFactory.CreateConcatTextMessage(message, true, phoneno);
+                    }
+                    Debug.WriteLine($" ===>> {isValidGSMCharaters}");
                     //var st = new Stopwatch();
                     //st.Start();
                     long smsSent = 0;
@@ -78,8 +84,8 @@ namespace DWT_157_SMS_GUI
                     //var gsmClsed = st.ElapsedMilliseconds;
                     //st.Stop();
                     //Debug.WriteLine($"smsSentIN: {smsSent} == gsmClosed in {gsmClsed - smsSent }");
-                    return "Message Sent with " + portno.ToString();
-
+                    String formate = isValidGSMCharaters == true ? "GSM" : "Unicode";
+                    return $"Message Sent with {portno.ToString()} in “{formate}” format in {pdus.Count()} part(s)";
                 }
                 catch (Exception exp)
                 {
@@ -91,7 +97,6 @@ namespace DWT_157_SMS_GUI
                     // goto lebe;
                 }
             }
-
         }
 
         public static String SendCommand(string command, SerialPort sp)
@@ -105,5 +110,25 @@ namespace DWT_157_SMS_GUI
             return res;
         }
 
+        private static bool isValidGSMCharateres(String message)
+        {
+            // Remove all the ENTERS and check it against the characters
+            message = message.Replace("\n", " ");
+                
+            var isValidGSM = true;
+            var gsm = "@£$¥èéùìòÇØøÅåΔ_ΦΓΛΩΠΨΣΘΞ^{}\\[~]|€ÆæßÉ!\"#¤%&'()*+,-./0123456789:;<=>?¡ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÑÜ§¿abcdefghijklmnopqrstuvwxyzäöñüà ";
+
+            for (int i = 0; i < message.Length; i++)
+            {
+                bool letterInAlfabet = gsm.Contains(message[i]);
+                if (letterInAlfabet == false)
+                {
+                    // this means that the character is out of GSM space.
+                    isValidGSM = false;
+                    break;
+                }
+            }
+            return isValidGSM;
+        }
     }
 }
